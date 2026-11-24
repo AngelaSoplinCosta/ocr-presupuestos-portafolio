@@ -1,0 +1,71 @@
+# Entorno virtual y configuración local
+.venv/
+venv/
+env/
+.env
+.env.*
+!backend/.env.example
+
+# Python: bytecode, cachés y artefactos de herramientas
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+
+# Empaquetado y compilación
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporales
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+.cache/
+tmp/
+temp/
+
+# Entradas privadas y documentos de clientes
+entrada/
+procesados/
+referencia/
+revision_manual/
+*.pdf
+
+# Resultados y registros generados
+salida/
+logs/
+*.log
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+
+# Contexto local de asistentes
+.codex/
+.agents/
+
+# Estado local de la integración (nunca versionar)
+backend/runtime/
+*.sqlite3
