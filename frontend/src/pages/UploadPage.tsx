@@ -6,7 +6,7 @@ import { useApp } from '../hooks/useApp'
 import type { DocumentType } from '../types'
 
 const types: DocumentType[] = ['Presupuesto de obra']
-const progressSteps = ['Documento', 'Procesamiento', 'Excel']
+const progressSteps = ['Documento', 'Procesamiento', 'Revisión', 'Columnas', 'Excel']
 
 function FlowIcon({ name }: { name: 'document' | 'data' | 'column' | 'drive' }) {
   const paths = {
@@ -59,7 +59,7 @@ export function UploadPage() {
           <p className="upload-after-note">Después procesaremos el documento y prepararemos el Excel.</p>
           <div className="upload-local-note" role="status">
             <FlowIcon name="drive" />
-            <span><strong>Procesamiento local durante el piloto</strong><small>El archivo permanece en memoria y se envía únicamente a la API local configurada. No se persiste en el navegador y desaparece al recargar la página.</small></span>
+            <span><strong>Procesamiento en este equipo</strong><small>Al continuar, el PDF se envía a la API local. Se conserva temporalmente para que puedas compararlo con las partidas extraídas; recargar la página no elimina esa copia.</small></span>
           </div>
 
           <div className="upload-preview" aria-label="Del documento al Excel">
@@ -83,16 +83,18 @@ export function UploadPage() {
         <aside className="upload-next-steps" aria-labelledby="next-steps-title">
           <div className="upload-next-steps__content">
             <h2 id="next-steps-title">Así se preparará el Excel</h2>
-            <p>El procesamiento local consta de tres etapas.</p>
+            <p>Tu recorrido desde el PDF hasta la descarga:</p>
             <ol>
               <li><span aria-hidden="true">1</span><strong>Documento seleccionado</strong></li>
               <li><span aria-hidden="true">2</span><strong>Procesamiento local</strong></li>
-              <li><span aria-hidden="true">3</span><strong>Excel disponible</strong></li>
+              <li><span aria-hidden="true">3</span><strong>Revisión de datos dudosos</strong></li>
+              <li><span aria-hidden="true">4</span><strong>Selección de columnas</strong></li>
+              <li><span aria-hidden="true">5</span><strong>Descarga del Excel</strong></li>
             </ol>
           </div>
           <details className="upload-help">
             <summary>¿Qué ocurrirá después?</summary>
-            <div><p>1. Validaremos el PDF.</p><p>2. Ejecutaremos el procesamiento local.</p><p>3. Revalidaremos y ofreceremos el Excel disponible.</p></div>
+            <div><p>1. Validaremos el PDF.</p><p>2. Extraeremos las partidas.</p><p>3. Revisarás los datos dudosos antes de descargar el Excel.</p></div>
           </details>
         </aside>
       </div>

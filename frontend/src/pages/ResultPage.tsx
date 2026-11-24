@@ -113,7 +113,7 @@ function LocalResult({ jobId }: { jobId: string }) {
       <PageHeader
         title={title}
         description="Resultado generado por el procesamiento local del PDF."
-        eyebrow="Paso 3 de 3 · Excel"
+        eyebrow="Paso 5 de 5 · Excel"
       />
       {loading && <InlineAlert title="Revalidando resultado" tone="info">Confirmando que el archivo continúa disponible.</InlineAlert>}
       {!loading && available && (

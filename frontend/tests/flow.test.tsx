@@ -3,9 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { reachColumns, renderAt, reachReview } from './testUtils'
 
 describe('recorrido documental', () => {
-  it('muestra el inicio Quipta con sus acciones principales', () => {
+  it('presenta el uso con PDF propio y separa el ejemplo', () => {
     renderAt('/')
-    expect(screen.getByRole('heading', { name: 'De presupuesto en PDF a Excel confiable' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'De tu presupuesto en PDF a una tabla en Excel' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Subir presupuesto en PDF' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Ver cómo funciona' })).toBeEnabled()
     expect(screen.getAllByRole('button', { name: 'Probar con un documento de ejemplo' }).length).toBeGreaterThan(0)

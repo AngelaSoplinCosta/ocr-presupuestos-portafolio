@@ -46,7 +46,7 @@ describe('privacidad y ausencia de red', () => {
 
   it('mantiene visible el aviso de privacidad en la carga', () => {
     renderAt('/documentos/nuevo')
-    expect(screen.getByText(/se envía únicamente a la api local/i)).toBeVisible()
-    expect(screen.getByText(/desaparece al recargar/i)).toBeVisible()
+    expect(screen.getByText(/el PDF se envía a la API local/i)).toBeVisible()
+    expect(screen.getByText(/recargar la página no elimina esa copia/i)).toBeVisible()
   })
 })

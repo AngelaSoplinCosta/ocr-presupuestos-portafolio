@@ -1,6 +1,6 @@
-# Cliente local de Quipta
+# Interfaz local para revisar presupuestos
 
-Frontend en React, TypeScript y Vite para un piloto de extracción de presupuestos.
+Frontend en React, TypeScript y Vite. La interfaz conserva el nombre Quipta del prototipo visual; en este repositorio se usa para acompañar el motor OCR local: cargar un PDF propio, revisar lo extraído y descargar el Excel.
 
 ## Dos recorridos
 
@@ -24,6 +24,6 @@ Para abrir la interfaz tras configurar el backend descrito en [backend/README.md
 
 ## Privacidad y límites
 
-Los datos del modo demostrativo son sintéticos. Un PDF real se envía al backend local al pulsar continuar y puede mostrarse temporalmente mediante una URL de objeto del navegador durante la revisión. Las URLs temporales se revocan cuando ya no hacen falta. No se guardan documentos en `localStorage` ni se transmiten a un servicio remoto desde este cliente.
+El ejemplo navegable usa datos inventados. Al elegir el recorrido real, el PDF se envía a la API del mismo equipo y permanece en el directorio privado del trabajo hasta la limpieza de resultados vencidos; recargar el navegador no elimina esa copia. Durante la revisión el navegador solicita el PDF local y crea una URL temporal, que revoca al cerrar el visor. No se guardan documentos en `localStorage` ni se transmiten a servicios remotos desde este cliente.
 
 Las pruebas de interfaz usan Vitest y Testing Library. La accesibilidad se trabajó mediante controles etiquetados, navegación con teclado y mensajes de estado; siguen pendientes evaluaciones manuales con lectores de pantalla y navegadores reales.

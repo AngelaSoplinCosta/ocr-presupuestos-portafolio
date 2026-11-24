@@ -1,6 +1,8 @@
 # OCR de presupuestos: piloto local con revisión humana
 
-Proyecto de portafolio que convierte tablas de presupuestos en PDF a un Excel estructurado. Cada persona que lo ejecute debe aportar su propio PDF: el repositorio no incluye documentos de entrada. El motor separa las lecturas ambiguas para revisión humana y comprueba los importes con aritmética decimal.
+Este piloto nació de una tarea concreta: pasar partidas de un presupuesto en PDF a una tabla que se pueda revisar y trabajar en Excel. Copiar los valores a mano era lento y una lectura dudosa podía cambiar un importe. Por eso el flujo combina extracción, comprobaciones numéricas y una decisión humana cuando la evidencia no alcanza.
+
+Para usarlo, cada persona carga **su propio PDF**. El repositorio no incluye presupuestos de entrada. La salida es un Excel local; el resultado depende de la estructura del documento y debe revisarse antes de utilizarse.
 
 ## Qué demuestra
 
@@ -10,7 +12,7 @@ Proyecto de portafolio que convierte tablas de presupuestos en PDF a un Excel es
 - **Integración local:** FastAPI recibe archivos por una ruta limitada al equipo local; React y TypeScript ofrecen carga, revisión, configuración de columnas y descarga.
 - **Pruebas:** suites separadas para motor, API y frontend. Los casos públicos emplean datos inventados.
 
-La solución nació de un problema operativo de extracción y control de presupuestos. Como evidencia profesional, muestra análisis del proceso, validación de resultados y construcción progresiva de un flujo de software. No representa un producto desplegado ni una especialización avanzada en infraestructura.
+El proyecto muestra cómo traduje una necesidad operativa en reglas de extracción, controles y una interfaz para revisar el resultado. Es un piloto local, no un servicio desplegado. El cliente web conserva el nombre **Quipta** del prototipo de interfaz; aquí se conecta al motor OCR para el uso con PDF propio.
 
 ## Arquitectura
 
@@ -24,7 +26,7 @@ flowchart LR
     API --> Motor
 ```
 
-El motor también se puede utilizar por línea de comandos. La interfaz incluye un recorrido demostrativo con datos ficticios y un recorrido local conectado a la API. En el recorrido local se carga un PDF propio, se revisan las partidas y se descarga el Excel; la demostración no procesa PDF ni produce una descarga real. El backend dispone además de un contrato protegido para integraciones futuras; su configuración requiere credenciales externas, nunca incluidas aquí.
+Hay dos maneras de trabajar: el comando Python procesa un PDF propio directamente; la interfaz local permite cargarlo, revisar partidas y descargar el Excel. La interfaz también tiene un ejemplo navegable para conocer los pasos sin aportar un archivo; ese ejemplo no procesa un PDF ni habilita una descarga. El backend conserva un contrato protegido de integración, separado del uso local y sin credenciales incluidas.
 
 ## Procesar un PDF propio
 
@@ -59,8 +61,8 @@ Las herramientas OCR del sistema no son instaladas por `requirements.txt`. La ej
 
 ## Límites y privacidad
 
-Esta copia no incluye PDF reales, aprobaciones originales, Excel o logs de trabajo, manifiestos con huellas de documentos ni materiales de diseño no revisados. La suite pública del motor fue reescrita con números y nombres ficticios; por tanto, sus resultados no equivalen a una regresión sobre el presupuesto de referencia privado. La generalización a formatos nuevos requiere más documentos de prueba autorizados.
+Esta copia no incluye PDF ni resultados de trabajo reales. Las pruebas del motor usan números y nombres inventados; pasar esas pruebas no demuestra que cualquier formato de presupuesto funcione. Para ampliar la compatibilidad hacen falta documentos de prueba que puedan utilizarse con permiso.
 
-El procesamiento local de archivos propios puede generar salidas sensibles en el equipo de quien lo ejecute. Las reglas de `.gitignore` excluyen esos archivos, pero cada persona debe verificar su contenido antes de compartirlo. Esta copia no envía un PDF a servicios en la nube.
+En el flujo web local, el PDF llega a la API en `127.0.0.1` y permanece temporalmente en el almacenamiento privado del trabajo para poder mostrarlo durante la revisión. No desaparece del servidor por recargar la página: la limpieza de resultados vencidos se realiza al iniciar la API o con el comando de mantenimiento. El Excel y los archivos de salida también pueden contener información sensible. Revisa cualquier archivo antes de compartirlo; `.gitignore` ayuda a evitar inclusiones accidentales. Esta copia no envía PDF a servicios en la nube.
 
 **Procedencia:** adaptación independiente de un prototipo privado. El historial, las etiquetas y las Releases originales no forman parte de esta edición. No se ha concedido una licencia de reutilización del código.

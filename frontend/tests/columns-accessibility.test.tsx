@@ -110,11 +110,14 @@ describe('columnas, lenguaje y accesibilidad estructural', () => {
     const { user } = renderAt('/')
     await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toHaveFocus())
     await user.click(screen.getByRole('link', { name: 'Documentos' }))
-    await waitFor(() => expect(screen.getByRole('heading', { name: 'Documentos' })).toHaveFocus())
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Documentos de ejemplo' })).toHaveFocus())
   })
 
-  it('muestra todos los estados con icono y texto', () => {
-    renderAt('/documentos')
+  it('muestra todos los estados con icono y texto', async () => {
+    const { user } = renderAt('/documentos')
+    expect(screen.getByRole('heading', { name: 'Ejemplos ocultos' })).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Mostrar ejemplos' }))
     for (const status of ['Recibido', 'Listo', 'Necesita revisión', 'Procesando', 'No se pudo procesar']) {
       expect(screen.getAllByText(status).length).toBeGreaterThan(0)
     }

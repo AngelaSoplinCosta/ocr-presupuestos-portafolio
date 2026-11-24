@@ -1,78 +1,24 @@
-# Modelo de amenazas del MVP local
+# Riesgos del piloto OCR local
 
-## Alcance y límites
+## Por qué existe este documento
 
-Este modelo cubre la primera fase de integración web local entre el frontend y la API de orquestación. No se ejecuta OCR ni se procesan documentos como parte de esta revisión. El modelo protege el PDF de entrada, los metadatos del trabajo, el resultado XLSX y los registros operativos.
+Un presupuesto PDF puede contener información privada, y el OCR procesa archivos que no controlamos. Esta revisión describe la frontera local que se puede examinar en el repositorio y los límites que importan al probar el piloto con un PDF propio. No certifica que cualquier PDF sea seguro ni autoriza un despliegue público.
 
-El modo local se considera un entorno de desarrollo controlado, no un despliegue público. Los estados de control usados en este documento son explícitos:
+El recorrido web envía el archivo a FastAPI en el mismo equipo. El backend conserva el original para mostrarlo en la revisión, produce datos de observaciones y un Excel, y guarda metadatos del trabajo. El recorrido de ejemplo del frontend usa datos inventados y no hace esta carga.
 
-- **IMPLEMENTADO:** existe una defensa en el código o en la configuración.
-- **VERIFICADO:** la defensa implementada tiene una prueba automatizada o una comprobación reproducible en esta fase.
-- **PENDIENTE ANTES DE NUBE:** no se debe desplegar fuera del equipo local hasta implementar y verificar el control indicado.
+## Riesgos y controles observables
 
-Un control puede estar simultáneamente **IMPLEMENTADO** y **VERIFICADO**. **PARCIAL** sólo indica que una parte local existe y otra parte permanece **PENDIENTE ANTES DE NUBE**.
+| Riesgo | Qué hace esta edición | Límite pendiente | Dónde comprobarlo |
+| --- | --- | --- | --- |
+| Archivo que finge ser un PDF | Comprueba extensión, MIME, firma y tamaño antes de procesarlo. | Esas comprobaciones no detectan todos los PDF maliciosos; el motor OCR no está aislado en un contenedor. | `backend/app/infrastructure/storage/local.py`, `backend/tests/test_upload_security.py` |
+| Escritura fuera del trabajo | Genera nombres internos, valida la ruta bajo la raíz privada y usa permisos restringidos. | La seguridad también depende de los permisos del equipo donde se ejecuta. | `backend/app/infrastructure/storage/local.py`, `backend/tests/test_upload_security.py` |
+| Acceso a la API desde otra máquina | El modo local está desactivado por defecto; `backend.run_local` fija `127.0.0.1` y un worker. La ruta exige cliente loopback y `X-Local-Pilot: 1`. | La cabecera no autentica a otros procesos del mismo equipo. No abrir puertos, proxies o túneles para este piloto. | `backend/run_local.py`, `backend/app/api/middleware.py`, `backend/tests/test_local_launcher.py`, `backend/tests/test_local_jobs.py` |
+| Exposición de credenciales de integración | El contrato `/v1/jobs` usa claves configuradas como hashes y HMAC; React no recibe esos secretos. | Una integración real necesita administración de secretos y revisión de acceso propia. | `backend/app/security.py`, `frontend/tests/privacy.test.tsx` |
+| Uso excesivo de recursos | Limita la carga a 50 MB, acota el multipart y admite una solicitud activa. | No hay un límite de tiempo integral verificado para el OCR; un documento difícil puede mantener el proceso ocupado. | `backend/app/api/middleware.py`, `backend/tests/test_admission_and_errors.py` |
+| Archivo o Excel conservado más tiempo del esperado | El PDF original, la revisión y el resultado quedan en el directorio privado del trabajo. La limpieza borra los trabajos vencidos al iniciar o ejecutar `python -m backend.app.cleanup_results`; ante error se elimina el directorio. | El vencimiento no dispara por sí solo una tarea continua. Recargar la página no borra archivos del servidor; la eliminación física puede depender del sistema de archivos. | `backend/app/services/process_job.py`, `backend/app/services/retention.py`, `backend/tests/test_retention.py` |
+| Datos sensibles en registros | El logger operativo limita los campos registrados; la API devuelve códigos de error controlados. | Las salidas descargadas y los metadatos locales siguen siendo responsabilidad de quien ejecuta el piloto. | `backend/app/logging_config.py`, `backend/tests/test_security.py` |
+| Dependencias vulnerables | Se fijan versiones y se pueden revisar con `npm audit` y `pip-audit`. | Una auditoría puntual no sustituye futuras revisiones de versiones ni analiza todos los binarios OCR del sistema. | `frontend/package-lock.json`, `backend/requirements.txt` |
 
-## Activos y límites de confianza
+## Uso previsto
 
-- PDF original y su contenido potencialmente sensible.
-- Identidad del tenant, identificador de Drive y revisión del documento.
-- Directorio privado de cada trabajo y resultado XLSX.
-- Credenciales de API y secreto HMAC.
-- Base de datos, logs y configuración del proceso.
-- Navegador: el React del MVP no debe recibir ni persistir API keys o secretos.
-
-La frontera de entrada es HTTP multipart. El cliente no es confiable: nombre, MIME, tamaño y bytes del archivo se validan en el servidor. El contenido del PDF tampoco es confiable y no debe interpretarse durante esta fase.
-
-## Amenazas mínimas y tratamiento
-
-| ID | Amenaza | Impacto | Control exigido | Estado en esta fase | Evidencia o prueba |
-| --- | --- | --- | --- | --- | --- |
-| T01 | PDF falso o malicioso | Ejecución o consumo inesperado al abrir/procesar un archivo | Validar extensión, MIME, firma, tamaño y conservar el original fuera del directorio público; antimalware antes de nube | PARCIAL: IMPLEMENTADO y VERIFICADO en la frontera; PENDIENTE ANTES DE NUBE el antimalware | `backend/tests/test_upload_security.py` |
-| T02 | Path traversal y symlinks | Escritura, lectura o borrado fuera del área del trabajo | Generar nombres internos, bloquear rutas absolutas y `../`, resolver y comprobar rutas, rechazar symlinks | IMPLEMENTADO y VERIFICADO | `backend/tests/test_upload_security.py` |
-| T03 | Exposición de credenciales | Acceso no autorizado a trabajos o infraestructura | API keys sólo como hashes scrypt, secreto HMAC fuera del código, sin secretos en React | PARCIAL: IMPLEMENTADO y VERIFICADO para API/frontend; PENDIENTE ANTES DE NUBE el gestor de secretos | `backend/tests/test_security.py` y `frontend/tests/privacy.test.tsx` |
-| T04 | Acceso cruzado entre empresas | Lectura o sustitución de documentos de otro tenant | Tenant derivado exclusivamente de la API key, HMAC del ID de Drive y autorización por tenant en repositorio | IMPLEMENTADO y VERIFICADO | `backend/tests/test_tenant_isolation.py` y `backend/tests/test_security.py` |
-| T05 | Consumo excesivo de CPU, memoria y almacenamiento | Denegación de servicio o agotamiento del equipo | PDF máximo de 50 MB, límite multipart mayor pero acotado, chunks, timeout y una sola ejecución simultánea | PARCIAL: tamaño/chunks/concurrencia IMPLEMENTADOS y VERIFICADOS; PENDIENTE ANTES DE NUBE el timeout | `backend/tests/test_upload_security.py`, `backend/tests/test_admission_and_errors.py` |
-| T06 | Información sensible en logs | Filtración de documentos, rutas, nombres o credenciales | Logs sólo con campos seguros: IDs UUID, estado, duración, códigos y métricas acotadas | IMPLEMENTADO y VERIFICADO | `backend/tests/test_security.py` y `backend/app/logging_config.py` |
-| T07 | Conservación excesiva | Incumplimiento de privacidad o aumento del impacto de una filtración | Eliminar entrada y temporales al completar/error; retener XLSX sólo durante el plazo configurado | IMPLEMENTADO y VERIFICADO para la política local | `backend/tests/test_retention.py` |
-| T08 | Manipulación o sustitución de resultados | Descarga de un resultado incorrecto o alterado | Nombre físico interno, rutas privadas, hash SHA-256 de entrada y resultado, transición de estados y autorización por tenant | PARCIAL: hash de entrada/transiciones IMPLEMENTADOS y VERIFICADOS; PENDIENTE ANTES DE NUBE el hash verificable del resultado | `backend/tests/test_processing_states.py` y `backend/tests/test_result.py` |
-| T09 | Dependencias vulnerables | Compromiso de la cadena de suministro | Versiones fijadas, revisión de dependencias antes de cada entrega y auditoría en CI | PARCIAL: versiones fijadas IMPLEMENTADAS y auditoría local VERIFICADA; PENDIENTE ANTES DE NUBE auditoría CI | `frontend/package-lock.json`, requirements del proyecto |
-| T10 | Exposición accidental del modo local a Internet | Acceso remoto no autorizado a la API local | Modo local desactivado por defecto, escucha exclusiva en `127.0.0.1`, sin exposición mediante proxy o túnel | PENDIENTE ANTES DE NUBE de implementación y verificación | Configuración del servidor y prueba de despliegue |
-
-## Requisitos verificables de aceptación
-
-- **R01. Modo local:** desactivado por defecto; habilitación explícita sólo para desarrollo.
-- **R02. Red:** la API local escucha exclusivamente en `127.0.0.1`; no se acepta `0.0.0.0` por defecto.
-- **R03. Tamaño:** se rechaza cualquier PDF mayor de 50 MB y la solicitud multipart completa también tiene un límite superior acotado.
-- **R04. Tipo:** se valida extensión `.pdf`, MIME `application/pdf` y firma `%PDF-`; ninguna validación depende sólo del nombre.
-- **R05. Nombres:** el nombre físico se genera internamente (`source.pdf`, `result.xlsx`); nunca se usa el nombre del cliente como ruta.
-- **R06. Rutas:** se bloquean rutas absolutas, `../`, separadores no permitidos y symlinks; la ruta resuelta debe permanecer bajo la raíz privada.
-- **R07. Almacenamiento:** entradas, temporales y resultados viven fuera de cualquier directorio público o servido por el frontend.
-- **R08. Permisos:** raíz y directorios de trabajo usan `0700`; archivos usan `0600`; la aplicación no requiere privilegios elevados.
-- **R09. Recursos:** existe timeout de procesamiento, chunks acotados y una sola ejecución simultánea en el MVP local.
-- **R10. Errores:** las respuestas no revelan rutas, trazas, nombres documentales, credenciales ni detalles del motor; sólo exponen códigos sanitizados y `request_id`.
-- **R11. Integridad:** se calcula y persiste SHA-256 de la entrada y se calcula SHA-256 verificable del resultado antes de entregarlo.
-- **R12. Retención:** se documenta el plazo del resultado, se eliminan entrada y temporales al terminar y se elimina todo ante error; la eliminación se verifica operativamente.
-- **R13. Frontend:** React no contiene API keys, secretos HMAC, credenciales, tokens ni valores equivalentes; tampoco los persiste en almacenamiento del navegador.
-
-En esta revisión son pruebas automatizadas sin OCR R03, R04, R05, R06, R07, R08, R10, R13 y partes de R09/R11. R01, R02, timeout y hash del resultado requieren una implementación de arranque/procesamiento que queda fuera de esta fase.
-
-## Controles previos a nube
-
-Antes de conectar almacenamiento o ejecución en nube deben implementarse y verificarse, como mínimo:
-
-- HTTPS con validación y rotación de certificados.
-- Sesiones `HttpOnly`, `Secure` y `SameSite` cuando exista sesión web.
-- Protección CSRF para operaciones autenticadas basadas en cookies.
-- MFA para operadores y cuentas administrativas.
-- RBAC con mínimo privilegio y separación entre tenants y operadores.
-- Cifrado en tránsito y en reposo, incluida la base de datos y los objetos.
-- Gestor de secretos; ningún secreto en Git, React, imágenes o logs.
-- Antimalware y cuarentena del PDF antes de ponerlo a disposición del OCR.
-- Rate limiting por identidad, tenant y origen, además de límites de tamaño.
-- Aislamiento del OCR en proceso/contendor sin privilegios, con filesystem y red restringidos.
-- Monitoreo de admisión, errores, recursos, integridad y retención, sin registrar contenido documental.
-- Procedimiento de respuesta a incidentes: detección, contención, preservación de evidencia, comunicación, recuperación y rotación de credenciales.
-
-## Decisiones explícitas de esta fase
-
-No se instala ClamAV ni ninguna herramienta nueva de seguridad. No se ejecuta OCR, no se abre el PDF como documento y no se modifica el adaptador del motor. Las pruebas usan bytes sintéticos mínimos únicamente para verificar la frontera de carga y el almacenamiento.
+Ejecutar únicamente en el equipo local con el lanzador indicado en `backend/README.md`; cargar sólo documentos que se tenga permiso de procesar. El recorrido de ejemplo sirve para explorar la interfaz sin un PDF. Antes de compartir un Excel, revisar los importes y la información que contiene. La ruta protegida `/v1/jobs` y las referencias a Drive son un contrato de integración separado, no una función del navegador local.

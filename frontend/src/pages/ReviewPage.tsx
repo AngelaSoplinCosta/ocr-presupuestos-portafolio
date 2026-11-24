@@ -108,7 +108,7 @@ function LocalReviewPage({ jobId }: { jobId: string }) {
   }, [jobId, offset])
 
   return <div className="flow-page review-page">
-    <PageHeader title="Encontramos datos que necesitan tu revisión." description="Revisa estas observaciones antes de utilizar el Excel. Las sugerencias no se aplicaron automáticamente." eyebrow="Paso 3 de 4 · Revisión" />
+    <PageHeader title="Encontramos datos que necesitan tu revisión." description="Revisa estas observaciones antes de utilizar el Excel. Las sugerencias no se aplicaron automáticamente." eyebrow="Paso 3 de 5 · Revisión" />
     {loading && <InlineAlert title="Cargando revisión" tone="info">Consultando las observaciones detectadas en el documento.</InlineAlert>}
     {!loading && error && <InlineAlert title="No se pudo obtener la revisión" tone="error">{error}</InlineAlert>}
     {!loading && review && <>

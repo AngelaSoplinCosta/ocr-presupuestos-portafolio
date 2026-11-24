@@ -17,8 +17,8 @@ export function HomePage() {
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-hero__copy">
           <p className="home-kicker"><span className="home-kicker__node" aria-hidden="true" />Extracción documental con revisión humana</p>
-          <h1 id="home-title" data-page-title tabIndex={-1}>De presupuesto en PDF a Excel confiable</h1>
-          <p className="home-hero__description">Carga un documento escaneado o digital. Quipta extrae la información, te muestra la evidencia y te permite organizar las columnas antes de preparar tu Excel.</p>
+          <h1 id="home-title" data-page-title tabIndex={-1}>De tu presupuesto en PDF a una tabla en Excel</h1>
+          <p className="home-hero__description">Carga un PDF propio en tu equipo. El piloto extrae las partidas, señala datos dudosos y te deja revisarlos antes de descargar el Excel.</p>
           <div className="home-hero__actions">
             <Button onClick={() => navigate('/documentos/nuevo')}>Subir presupuesto en PDF</Button>
             <Button variant="secondary" onClick={showHowItWorks}>Ver cómo funciona</Button>
@@ -34,12 +34,12 @@ export function HomePage() {
           </ul>
           <details className="home-help">
             <summary>¿Qué significa procesamiento local?</summary>
-            <p>Durante este piloto, el documento se procesa en tu equipo y no se envía a servicios externos.</p>
+            <p>El navegador envía el PDF a la API de este mismo equipo. Se guarda temporalmente para la revisión y no se envía a servicios externos.</p>
           </details>
         </div>
 
         <div className="home-demo" aria-label="Demostración visual de PDF a datos organizados">
-          <div className="home-demo__heading"><h2>De PDF a datos organizados</h2><span>Vista previa</span></div>
+          <div className="home-demo__heading"><h2>Así se revisa una extracción</h2><span>Ejemplo ilustrativo</span></div>
           <div className="home-demo__document">
             <div className="home-document" aria-hidden="true"><span className="home-document__fold" /><span /><span className="short" /><span className="medium" /><strong>03&nbsp;&nbsp; Trabajo general</strong><span className="short" /></div>
             <div className="home-demo__metadata"><strong>Presupuesto de obra</strong><span>48 partidas detectadas</span><span>PDF local · página 4</span></div>
@@ -54,7 +54,7 @@ export function HomePage() {
       </section>
 
       <section className="home-flow" id="home-flow" tabIndex={-1} aria-labelledby="home-flow-title">
-        <div className="home-flow__heading"><h2 id="home-flow-title">Tu recorrido en Quipta</h2><span>Sin pasos ocultos</span></div>
+        <div className="home-flow__heading"><h2 id="home-flow-title">Del PDF al Excel</h2><span>Revisión antes de exportar</span></div>
         <ol className="home-steps" aria-label="PDF, extracción, revisión, columnas y Excel">
           {['PDF', 'Extracción', 'Revisión', 'Columnas', 'Excel'].map((step, index) => (
             <li key={step} className={index === 4 ? 'home-step home-step--result' : 'home-step'}>

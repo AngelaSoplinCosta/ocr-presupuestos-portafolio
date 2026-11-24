@@ -21,7 +21,7 @@ export function ColumnsPage() {
   return (
     <div className="flow-page">
       {state.demo && <DemoBanner />}
-      <PageHeader title="Elige y organiza las columnas" description="Hemos analizado el documento y detectado la información disponible. Selecciona qué columnas quieres incluir, cambia sus nombres, arrástralas para ordenar su posición o añade una nueva." eyebrow="Paso 3 de 5" />
+      <PageHeader title="Elige y organiza las columnas" description="Este ejemplo muestra campos ficticios. Selecciona las columnas que quieres incluir, cambia sus nombres, ordénalas con los botones o añade una nueva." eyebrow="Paso 3 de 5" />
       <p className="detected-data-note">Los datos mostrados son ficticios y se utilizan únicamente para demostrar el funcionamiento.</p>
       <ColumnEditor columns={state.columns} onChange={(columns) => dispatch({ type: 'SET_COLUMNS', columns })} />
       {state.templateMessage && <Toast message={state.templateMessage} />}

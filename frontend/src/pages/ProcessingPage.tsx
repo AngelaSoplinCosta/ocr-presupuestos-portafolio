@@ -45,7 +45,7 @@ export function ProcessingPage() {
   return (
     <div className="flow-page narrow-page">
       {state.demo && <DemoBanner />}
-      <PageHeader title={isLocalUpload ? 'Procesando documento' : 'Procesamiento simulado'} description={isLocalUpload ? 'Quipta está leyendo el PDF y preparando el archivo Excel.' : 'Revisa las etapas previstas y decide cuándo cargar la información ficticia de la demostración.'} eyebrow={isLocalUpload ? 'Paso 2 de 3' : 'Paso 2 de 5'} />
+      <PageHeader title={isLocalUpload ? 'Procesando documento' : 'Procesamiento simulado'} description={isLocalUpload ? 'El motor está leyendo el PDF y comprobando sus partidas. Después podrás revisarlas.' : 'Recorre un ejemplo de las etapas sin cargar un PDF.'} eyebrow={isLocalUpload ? 'Paso 2 de 5' : 'Paso 2 de 5'} />
       {state.demo ? <InlineAlert title="Sólo demostración" tone="warning">Demostración: esta pantalla todavía no está conectada al motor de procesamiento.</InlineAlert> : <InlineAlert title={localError ? 'No se pudo conectar con la API local' : 'Conexión local'} tone={localError ? 'error' : 'info'}>{localError || (localJob ? `Estado: ${jobStatusLabels[localJob.status]}` : 'Enviando el PDF a la API local.')}</InlineAlert>}
       {state.demo && <ol className="processing-list">
         {processingSteps.map((step, index) => <li key={step}><span aria-hidden="true">{index + 1}</span><div><strong>{step}</strong><p>Etapa representada con datos ficticios.</p></div></li>)}

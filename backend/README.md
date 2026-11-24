@@ -1,7 +1,6 @@
-# API de orquestación OCR
+# API local y contrato de integración
 
-Integración vertical síncrona entre un cliente autorizado y el motor local. La solicitud
-HTTP permanece abierta hasta obtener `COMPLETADO`, `REVISAR` o `ERROR`.
+La interfaz de este repositorio usa `/api/v1/local/jobs` para enviar un PDF propio al motor y consultar su revisión y resultado. También existe `/v1/jobs`, un contrato separado para un cliente de integración autenticado. El procesamiento es síncrono: la solicitud HTTP permanece abierta hasta obtener `COMPLETADO`, `REVISAR` o `ERROR`.
 
 ## Seguridad relevante
 
@@ -110,10 +109,7 @@ contrato estático del adaptador, sin ejecutar OCR.
 
 ## Retención
 
-Al completar o marcar para revisión se eliminan el PDF de entrada y derivados de
-trabajo; el XLSX permanece durante `OCR_RESULT_RETENTION_HOURS`. Ante error se
-elimina todo el directorio del trabajo. `unlink` es una eliminación de mejor
-esfuerzo: en almacenamiento cifrado o copy-on-write no garantiza borrado físico.
+Al completar o marcar para revisión se elimina el directorio temporal de trabajo, pero el PDF de entrada se conserva en el directorio privado para mostrarlo junto a las observaciones. El PDF, los datos de revisión y el XLSX se eliminan juntos cuando vence `OCR_RESULT_RETENTION_HOURS` y se ejecuta la limpieza. Ante error se elimina el directorio del trabajo. La eliminación de archivos es de mejor esfuerzo: en almacenamiento cifrado o copy-on-write no garantiza borrado físico.
 
 La limpieza se ejecuta una vez al iniciar y también está disponible como comando
 administrativo independiente:

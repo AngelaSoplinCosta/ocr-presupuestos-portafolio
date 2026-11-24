@@ -36,7 +36,7 @@ export function ProcessLayout() {
 
   const leave = () => {
     const hasWork = Boolean(state.file || state.demo || Object.keys(state.decisions).length)
-    if (hasWork && !window.confirm('Se perderán las decisiones de esta demostración. ¿Quieres salir del proceso?')) return
+    if (hasWork && !window.confirm(state.demo ? 'Se perderán las decisiones de este ejemplo. ¿Quieres salir?' : 'Se perderá el avance visible de este proceso. El archivo local permanecerá hasta la limpieza de resultados vencidos. ¿Quieres salir?')) return
     dispatch({ type: 'RESET_PROCESS' })
     navigate('/')
   }
